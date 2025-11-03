@@ -14,16 +14,126 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      diagnostic_results: {
+        Row: {
+          answers: Json
+          completed_at: string | null
+          id: string
+          performance_level: string
+          score: number
+          strong_topics: Json | null
+          user_id: string
+          weak_topics: Json | null
+        }
+        Insert: {
+          answers: Json
+          completed_at?: string | null
+          id?: string
+          performance_level: string
+          score: number
+          strong_topics?: Json | null
+          user_id: string
+          weak_topics?: Json | null
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string | null
+          id?: string
+          performance_level?: string
+          score?: number
+          strong_topics?: Json | null
+          user_id?: string
+          weak_topics?: Json | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          name?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          alternatives: Json
+          correct_answer: string
+          created_at: string | null
+          difficulty_level: string
+          explanation: string
+          id: string
+          question_text: string
+          topic: string
+        }
+        Insert: {
+          alternatives: Json
+          correct_answer: string
+          created_at?: string | null
+          difficulty_level: string
+          explanation: string
+          id?: string
+          question_text: string
+          topic: string
+        }
+        Update: {
+          alternatives?: Json
+          correct_answer?: string
+          created_at?: string | null
+          difficulty_level?: string
+          explanation?: string
+          id?: string
+          question_text?: string
+          topic?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "student" | "teacher"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +260,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["student", "teacher"],
+    },
   },
 } as const
