@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -13,8 +13,22 @@ const Diagnostic = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [questionStartTime, setQuestionStartTime] = useState<Record<string, number>>({});
+  const [questionTimes, setQuestionTimes] = useState<Record<string, number>>({});
+  const [testStartTime] = useState(Date.now());
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Track time when question changes
+  useEffect(() => {
+    const currentQuestionId = questions[currentQuestionIndex].id;
+    if (!questionStartTime[currentQuestionId]) {
+      setQuestionStartTime(prev => ({
+        ...prev,
+        [currentQuestionId]: Date.now()
+      }));
+    }
+  }, [currentQuestionIndex]);
 
   const questions = diagnosticQuestions;
   const currentQuestion = questions[currentQuestionIndex];
@@ -30,6 +44,11 @@ const Diagnostic = () => {
       return;
     }
 
+    // Record time spent on this question
+    const timeSpent = Math.floor((Date.now() - questionStartTime[currentQuestion.id]) / 1000);
+    const newQuestionTimes = { ...questionTimes, [currentQuestion.id]: timeSpent };
+    setQuestionTimes(newQuestionTimes);
+
     const newAnswers = { ...answers, [currentQuestion.id]: selectedAnswer };
     setAnswers(newAnswers);
     setSelectedAnswer("");
@@ -37,7 +56,14 @@ const Diagnostic = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      navigate("/student/diagnostic/review", { state: { answers: newAnswers } });
+      const totalTime = Math.floor((Date.now() - testStartTime) / 1000);
+      navigate("/student/diagnostic/review", { 
+        state: { 
+          answers: newAnswers,
+          questionTimes: newQuestionTimes,
+          totalTime
+        } 
+      });
     }
   };
 
@@ -50,11 +76,23 @@ const Diagnostic = () => {
   };
 
   const handleSkip = () => {
+    // Record time spent even when skipping
+    const timeSpent = Math.floor((Date.now() - questionStartTime[currentQuestion.id]) / 1000);
+    const newQuestionTimes = { ...questionTimes, [currentQuestion.id]: timeSpent };
+    setQuestionTimes(newQuestionTimes);
+    
     setSelectedAnswer("");
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      navigate("/student/diagnostic/review", { state: { answers } });
+      const totalTime = Math.floor((Date.now() - testStartTime) / 1000);
+      navigate("/student/diagnostic/review", { 
+        state: { 
+          answers,
+          questionTimes: newQuestionTimes,
+          totalTime
+        } 
+      });
     }
   };
 

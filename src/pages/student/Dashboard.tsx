@@ -1,14 +1,59 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
-import { FileText, Swords, CreditCard, TrendingUp, Award, Target } from "lucide-react";
+import { FileText, Swords, CreditCard, TrendingUp, Award, Target, Trophy, Brain, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [diagnosticResults, setDiagnosticResults] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const diagnosticCompleted = false; // TODO: Check from database
+  useEffect(() => {
+    if (user) {
+      fetchDiagnosticResults();
+    }
+  }, [user]);
+
+  const fetchDiagnosticResults = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("diagnostic_results")
+        .select("*")
+        .eq("user_id", user?.id)
+        .order("completed_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!error && data) {
+        setDiagnosticResults(data);
+      }
+    } catch (error) {
+      console.error("Error fetching diagnostic results:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const diagnosticCompleted = !!diagnosticResults;
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case "Expert":
+        return "from-yellow-400 to-orange-500";
+      case "Avançado":
+        return "from-purple-500 to-pink-500";
+      case "Intermediário":
+        return "from-blue-500 to-cyan-500";
+      default:
+        return "from-orange-500 to-red-500";
+    }
+  };
 
   const features = [
     {
@@ -37,18 +82,34 @@ const Dashboard = () => {
     },
   ];
 
-  const stats = [
-    { label: "Questões Respondidas", value: "0", icon: Target },
-    { label: "Taxa de Acerto", value: "0%", icon: TrendingUp },
-    { label: "Conquistas", value: "0", icon: Award },
-  ];
+  const stats = diagnosticCompleted
+    ? [
+        { label: "Questões Respondidas", value: "20", icon: Target },
+        { label: "Taxa de Acerto", value: `${Math.round((diagnosticResults.score / 20) * 100)}%`, icon: TrendingUp },
+        { label: "XP Conquistado", value: diagnosticResults.score * 10, icon: Award },
+      ]
+    : [
+        { label: "Questões Respondidas", value: "0", icon: Target },
+        { label: "Taxa de Acerto", value: "0%", icon: TrendingUp },
+        { label: "Conquistas", value: "0", icon: Award },
+      ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Bem-vindo de volta!</h1>
         <p className="text-muted-foreground">
-          Pronto para continuar sua jornada de aprendizado?
+          {diagnosticCompleted
+            ? "Continue sua jornada de aprendizado"
+            : "Pronto para começar sua jornada de aprendizado?"}
         </p>
       </div>
 
@@ -67,8 +128,80 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Diagnostic Test Card - Priority Banner */}
-      {!diagnosticCompleted && (
+      {/* Diagnostic Results or Call to Action */}
+      {diagnosticCompleted ? (
+        <Card className={`border-2 bg-gradient-to-br ${getLevelColor(diagnosticResults.performance_level)}/10 shadow-lg`}>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="flex items-center gap-2 text-2xl mb-2">
+                  <Trophy className="h-6 w-6" />
+                  Seu Progresso
+                </CardTitle>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Badge className={`bg-gradient-to-r ${getLevelColor(diagnosticResults.performance_level)} text-white border-0 px-3 py-1`}>
+                      {diagnosticResults.performance_level}
+                    </Badge>
+                    <span className="text-lg font-semibold">
+                      {diagnosticResults.score}/20 ({Math.round((diagnosticResults.score / 20) * 100)}%)
+                    </span>
+                  </div>
+
+                  {/* Topic Progress */}
+                  {diagnosticResults.weak_topics && diagnosticResults.weak_topics.length > 0 && (
+                    <div className="space-y-2 pt-2">
+                      <p className="text-sm font-medium">Áreas em Foco:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {diagnosticResults.weak_topics.slice(0, 3).map((topic: string, index: number) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {topic}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {diagnosticResults.strong_topics && diagnosticResults.strong_topics.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-green-600">Pontos Fortes:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {diagnosticResults.strong_topics.slice(0, 3).map((topic: string, index: number) => (
+                          <Badge key={index} variant="secondary" className="text-xs bg-green-500/20 border-green-500/30">
+                            ✓ {topic}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => navigate("/student/diagnostic/results", {
+                state: {
+                  score: diagnosticResults.score,
+                  percentage: Math.round((diagnosticResults.score / 20) * 100),
+                  performanceLevel: diagnosticResults.performance_level,
+                  weakTopics: diagnosticResults.weak_topics || [],
+                  strongTopics: diagnosticResults.strong_topics || [],
+                  topicPerformance: [],
+                  difficultyPerformance: [],
+                  insights: [],
+                  recommendedFocus: diagnosticResults.weak_topics?.slice(0, 3) || [],
+                  answers: diagnosticResults.answers || [],
+                }
+              })}
+              variant="outline"
+              className="w-full"
+            >
+              Ver Análise Completa
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
         <Card className="border-2 border-primary bg-gradient-to-br from-primary/10 to-secondary/10 shadow-lg">
           <CardHeader>
             <div className="flex items-start justify-between">
@@ -98,10 +231,48 @@ const Dashboard = () => {
         </Card>
       )}
 
+      {/* Recommended Practice Section (Only if diagnostic completed) */}
+      {diagnosticCompleted && diagnosticResults.weak_topics && diagnosticResults.weak_topics.length > 0 && (
+        <Card className="border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-pink-500/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-purple-600" />
+              Prática Recomendada
+            </CardTitle>
+            <CardDescription>
+              Foque nestas áreas para melhorar seu desempenho
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {diagnosticResults.weak_topics.slice(0, 2).map((topic: string, index: number) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card">
+                  <div>
+                    <p className="font-medium">{topic}</p>
+                    <p className="text-xs text-muted-foreground">Foco prioritário para esta semana</p>
+                  </div>
+                  <Button size="sm" variant="outline">
+                    Praticar
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Features Grid */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Recursos Disponíveis</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          Recursos Disponíveis
+          {diagnosticCompleted && (
+            <Badge variant="secondary" className="bg-green-500/20 border-green-500/30">
+              <Sparkles className="h-3 w-3 mr-1" />
+              Desbloqueados
+            </Badge>
+          )}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((feature) => (
             <Card
               key={feature.title}
@@ -133,6 +304,11 @@ const Dashboard = () => {
                     </div>
                     <p className="text-sm font-medium">Complete o diagnóstico para desbloquear</p>
                   </div>
+                </div>
+              )}
+              {diagnosticCompleted && (
+                <div className="absolute top-2 right-2">
+                  <Badge className="bg-green-500 text-white text-xs">Novo!</Badge>
                 </div>
               )}
               <CardHeader>
