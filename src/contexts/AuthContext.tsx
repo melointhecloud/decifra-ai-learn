@@ -32,11 +32,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error("Error fetching user role:", error);
-        toast({
-          title: "Erro ao carregar perfil",
-          description: "Não foi possível carregar suas informações. Entre em contato com o suporte.",
-          variant: "destructive",
-        });
         return null;
       }
 
@@ -109,10 +104,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             title: "Login realizado com sucesso!",
             description: `Bem-vindo de volta, professor!`,
           });
-        } else {
-          // Fallback if role is not assigned
+        } else if (!role) {
           toast({
-            title: "Erro",
+            title: "Erro ao carregar perfil",
             description: "Seu perfil não está configurado corretamente. Entre em contato com o suporte.",
             variant: "destructive",
           });
