@@ -23,18 +23,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   const fetchUserRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
 
-    if (error) {
-      console.error("Error fetching user role:", error);
+      if (error) {
+        console.error("Error fetching user role:", error);
+        toast({
+          title: "Erro ao carregar perfil",
+          description: "Não foi possível carregar suas informações. Entre em contato com o suporte.",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      return data?.role as "student" | "teacher" | null;
+    } catch (error) {
+      console.error("Unexpected error fetching role:", error);
       return null;
     }
-
-    return data?.role as "student" | "teacher" | null;
   };
 
   useEffect(() => {
@@ -89,14 +99,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Redirect based on role
         if (role === "student") {
           navigate("/student/dashboard");
+          toast({
+            title: "Login realizado com sucesso!",
+            description: `Bem-vindo de volta, aluno!`,
+          });
         } else if (role === "teacher") {
           navigate("/teacher/dashboard");
+          toast({
+            title: "Login realizado com sucesso!",
+            description: `Bem-vindo de volta, professor!`,
+          });
+        } else {
+          // Fallback if role is not assigned
+          toast({
+            title: "Erro",
+            description: "Seu perfil não está configurado corretamente. Entre em contato com o suporte.",
+            variant: "destructive",
+          });
         }
-
-        toast({
-          title: "Login realizado com sucesso!",
-          description: `Bem-vindo de volta!`,
-        });
       }
     } catch (error: any) {
       toast({
