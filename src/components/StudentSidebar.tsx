@@ -17,7 +17,7 @@ import { GraduationCap } from "lucide-react";
 
 const menuItems = [
   { title: "Início", url: "/student/dashboard", icon: Home },
-  { title: "Simulado Diagnóstico", url: "/student/diagnostic", icon: FileText },
+  { title: "Simulado Diagnóstico", url: "/student/diagnostic/intro", icon: FileText },
   { title: "Banco de Questões", url: "/student/questions", icon: FileText },
   { title: "Duelos", url: "/student/duels", icon: Swords },
   { title: "Flashcards", url: "/student/flashcards", icon: CreditCard },

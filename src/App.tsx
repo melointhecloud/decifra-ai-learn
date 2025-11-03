@@ -12,7 +12,9 @@ import TeacherRegister from "./pages/TeacherRegister";
 import Login from "./pages/Login";
 import StudentLayout from "./pages/student/StudentLayout";
 import Dashboard from "./pages/student/Dashboard";
+import DiagnosticIntro from "./pages/student/DiagnosticIntro";
 import Diagnostic from "./pages/student/Diagnostic";
+import DiagnosticReview from "./pages/student/DiagnosticReview";
 import DiagnosticResults from "./pages/student/DiagnosticResults";
 
 const queryClient = new QueryClient();
@@ -38,14 +40,34 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="diagnostic" element={<Diagnostic />} />
-              <Route path="diagnostic/results" element={<DiagnosticResults />} />
               <Route path="questions" element={<div className="p-6">Banco de Questões - Em breve</div>} />
               <Route path="duels" element={<div className="p-6">Duelos - Em breve</div>} />
               <Route path="flashcards" element={<div className="p-6">Flashcards - Em breve</div>} />
               <Route path="performance" element={<div className="p-6">Meu Desempenho - Em breve</div>} />
               <Route path="profile" element={<div className="p-6">Perfil - Em breve</div>} />
             </Route>
+
+            {/* Diagnostic routes - full screen without sidebar */}
+            <Route path="/student/diagnostic/intro" element={
+              <ProtectedRoute allowedRole="student">
+                <DiagnosticIntro />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/diagnostic/test" element={
+              <ProtectedRoute allowedRole="student">
+                <Diagnostic />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/diagnostic/review" element={
+              <ProtectedRoute allowedRole="student">
+                <DiagnosticReview />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/diagnostic/results" element={
+              <ProtectedRoute allowedRole="student">
+                <DiagnosticResults />
+              </ProtectedRoute>
+            } />
 
             {/* Teacher Routes - Placeholder */}
             <Route path="/teacher/dashboard" element={
