@@ -251,7 +251,11 @@ const Dashboard = () => {
                     <p className="font-medium">{topic}</p>
                     <p className="text-xs text-muted-foreground">Foco prioritário para esta semana</p>
                   </div>
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => navigate("/student/practice/review", { state: { topic } })}
+                  >
                     Praticar
                   </Button>
                 </div>

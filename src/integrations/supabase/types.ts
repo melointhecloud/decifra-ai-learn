@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_activity: {
+        Row: {
+          date: string
+          flashcards_reviewed: number | null
+          id: string
+          questions_answered: number | null
+          time_spent_minutes: number | null
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          date: string
+          flashcards_reviewed?: number | null
+          id?: string
+          questions_answered?: number | null
+          time_spent_minutes?: number | null
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          date?: string
+          flashcards_reviewed?: number | null
+          id?: string
+          questions_answered?: number | null
+          time_spent_minutes?: number | null
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: []
+      }
       diagnostic_results: {
         Row: {
           answers: Json
@@ -68,6 +98,50 @@ export type Database = {
         }
         Relationships: []
       }
+      question_attempts: {
+        Row: {
+          attempted_at: string | null
+          id: string
+          is_correct: boolean
+          question_id: string
+          selected_answer: string
+          source: string
+          time_spent_seconds: number | null
+          user_id: string
+          xp_earned: number | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          id?: string
+          is_correct: boolean
+          question_id: string
+          selected_answer: string
+          source: string
+          time_spent_seconds?: number | null
+          user_id: string
+          xp_earned?: number | null
+        }
+        Update: {
+          attempted_at?: string | null
+          id?: string
+          is_correct?: boolean
+          question_id?: string
+          selected_answer?: string
+          source?: string
+          time_spent_seconds?: number | null
+          user_id?: string
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_attempts_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           alternatives: Json
@@ -98,6 +172,78 @@ export type Database = {
           id?: string
           question_text?: string
           topic?: string
+        }
+        Relationships: []
+      }
+      student_progress: {
+        Row: {
+          created_at: string | null
+          current_streak: number | null
+          id: string
+          last_activity: string | null
+          longest_streak: number | null
+          overall_accuracy: number | null
+          questions_answered: number | null
+          total_xp: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_activity?: string | null
+          longest_streak?: number | null
+          overall_accuracy?: number | null
+          questions_answered?: number | null
+          total_xp?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_streak?: number | null
+          id?: string
+          last_activity?: string | null
+          longest_streak?: number | null
+          overall_accuracy?: number | null
+          questions_answered?: number | null
+          total_xp?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      topic_progress: {
+        Row: {
+          average_time: number | null
+          current_accuracy: number | null
+          diagnostic_accuracy: number | null
+          id: string
+          last_practiced: string | null
+          questions_attempted: number | null
+          questions_correct: number | null
+          topic_name: string
+          user_id: string
+        }
+        Insert: {
+          average_time?: number | null
+          current_accuracy?: number | null
+          diagnostic_accuracy?: number | null
+          id?: string
+          last_practiced?: string | null
+          questions_attempted?: number | null
+          questions_correct?: number | null
+          topic_name: string
+          user_id: string
+        }
+        Update: {
+          average_time?: number | null
+          current_accuracy?: number | null
+          diagnostic_accuracy?: number | null
+          id?: string
+          last_practiced?: string | null
+          questions_attempted?: number | null
+          questions_correct?: number | null
+          topic_name?: string
+          user_id?: string
         }
         Relationships: []
       }

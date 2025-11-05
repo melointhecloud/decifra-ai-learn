@@ -16,6 +16,7 @@ import DiagnosticIntro from "./pages/student/DiagnosticIntro";
 import Diagnostic from "./pages/student/Diagnostic";
 import DiagnosticReview from "./pages/student/DiagnosticReview";
 import DiagnosticResults from "./pages/student/DiagnosticResults";
+import PracticeReview from "./pages/student/PracticeReview";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,11 @@ const App = () => (
             <Route path="/student/diagnostic/results" element={
               <ProtectedRoute allowedRole="student">
                 <DiagnosticResults />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/practice/review" element={
+              <ProtectedRoute allowedRole="student">
+                <PracticeReview />
               </ProtectedRoute>
             } />
 
