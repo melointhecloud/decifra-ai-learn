@@ -17,6 +17,7 @@ import Diagnostic from "./pages/student/Diagnostic";
 import DiagnosticReview from "./pages/student/DiagnosticReview";
 import DiagnosticResults from "./pages/student/DiagnosticResults";
 import PracticeReview from "./pages/student/PracticeReview";
+import QuestionBank from "./pages/student/QuestionBank";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +42,7 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="questions" element={<div className="p-6">Banco de Questões - Em breve</div>} />
+              <Route path="questions" element={<QuestionBank />} />
               <Route path="duels" element={<div className="p-6">Duelos - Em breve</div>} />
               <Route path="flashcards" element={<div className="p-6">Flashcards - Em breve</div>} />
               <Route path="performance" element={<div className="p-6">Meu Desempenho - Em breve</div>} />
